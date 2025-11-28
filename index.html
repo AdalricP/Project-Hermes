@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Hermes</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <meta name="description"
+        content="A curated list of great people working in the Indian tech, deeptech and startup space.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-overlay"></div>
+
+    <main class="container">
+        <header class="hero">
+            <div class="hero-content">
+                <h1 class="title">Project Hermes</h1>
+                <div class="poem">
+                    <p>Inventor of Lyre, Thief of Ox,</p>
+                    <p>Worn winged sandals, Wand two serpents crossed.</p>
+                    <p>The greek god of wealth & trade, the messenger god who heralded the Olympians, the one who
+                        accompanied souls to Hades - "Soul-Bearer" Hermes.</p>
+                </div>
+                <p class="subtitle"><text>Meeting interesting people who're building the future is hard, this is a
+                        directory to make it easy.</p>
+
+                <div style="margin-bottom: 2rem;">
+                    <a href="https://forms.gle/1hM36iS9epxxMksGA" target="_blank" class="database-link">Join our
+                        database.</a>
+                </div>
+
+                <div class="divider"></div>
+            </div>
+        </header>
+
+        <section class="search-section">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search for builders, engineers, or researchers..."
+                    autocomplete="off">
+                <div id="search-results"></div>
+            </div>
+            <div class="database-link-container">
+                <a href="https://docs.google.com/spreadsheets/d/1OzR5qE7CyavjVTEdCgflUU2nrE6pwhhxH2eRKimP6ao/edit?gid=0#gid=0"
+                    target="_blank" class="database-link">Give me a spreadsheet.</a>
+            </div>
+        </section>
+
+        <!-- Background Music -->
+        <audio id="bg-music" loop>
+            <source src="assets/Orphic Hymn To Hermes.mp3" type="audio/mpeg">
+        </audio>
+        <button id="music-toggle" class="music-btn" aria-label="Toggle Music">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="feather feather-music">
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+            </svg>
+        </button>
+
+        <footer>
+            <p>&copy; 2025 Project Hermes. <a href="https://github.com/AdalricP/Project-Hermes"
+                    target="_blank">Contribute on GitHub</a>.</p>
+        </footer>
+    </main>
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
