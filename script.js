@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1OzR5qE7CyavjVTEdCgflUU2nrE6pwhhxH2eRKimP6ao/export?format=csv";
 
     let dbData = [];
-    const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+    // const apiKey = import.meta.env.VITE_GROQ_API_KEY; // Moved to backend
 
     // Load Data from Google Sheet
     async function loadData() {
@@ -144,10 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const query = searchInput.value.trim();
         if (!query) return;
 
-        if (!apiKey) {
-            displayResults("API Key not found in .env");
-            return;
-        }
 
         searchResults.innerHTML = '<div class="result-item" style="text-align:center; color: var(--text-secondary);">Searching the archives...</div>';
 
@@ -172,45 +168,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const contextData = relevantData.length > 0 ? relevantData : dbData.slice(0, 20);
 
-        // Construct Prompt
-        const systemPrompt = `You are the search engine for Project Hermes, created by Aryan Pahwani.
-        Here is the database context: ${JSON.stringify(contextData)}
-        
-        The user is searching for: "${query}"
-        
-        Return a CSV string of people from the provided database that match the query.
-        - The CSV MUST have these headers: Name, Title, Twitter/Github, Website, Contact (mail), What am I building?, /whoami (description), AI_Description
-        - For 'AI_Description', generate a short, punchy, 3rd-person summary (max 15 words) of who they are based on their info.
-        - Return ONLY the CSV string. No other text.
-        - CRITICAL: If the user asks "who made this", "who built this", or about the creator, YOU MUST return the entry for 'Aryan Pahwani' (or similar) from the database.
-        - If no one matches, return nothing or just the headers.
-        - Match loosely based on skills, roles, and bio.
-        - If the user asks for "everyone" or "all", return the context.`;
-
+        // Call the serverless function
         try {
-            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            const response = await fetch('/api/search', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: query }
-                    ],
-                    model: 'openai/gpt-oss-120b', // User specified model
-                    temperature: 0.1
+                    query: query,
+                    contextData: contextData
                 })
             });
 
             const data = await response.json();
 
-            if (data.error) {
-                throw new Error(data.error.message);
+            if (!response.ok) {
+                throw new Error(data.error || 'Unknown error from server');
             }
 
-            const content = data.choices[0].message.content;
+            const content = data.content;
             try {
                 // Clean up potential markdown code blocks
                 const csvStr = content.replace(/```csv\n?|```/g, '').trim();

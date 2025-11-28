@@ -12,6 +12,7 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
+        "groq-sdk": "^0.37.0",
         "papaparse": "^5.4.1"
     }
 }
