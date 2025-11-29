@@ -95,6 +95,7 @@ body::after {
     letter-spacing: -0.02em;
     margin-bottom: 1rem;
     background: linear-gradient(to bottom right, #fff, #ccc);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -203,6 +204,18 @@ body::after {
 .footer-link:hover {
     color: var(--accent-gold);
     border-bottom: 1px solid var(--accent-gold);
+}
+
+.text-link {
+    color: var(--accent-gold);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent-gold);
+    transition: all 0.2s ease;
+}
+
+.text-link:hover {
+    color: #fff;
+    border-bottom: 1px solid #fff;
 }
 
 .subtitle {

@@ -91,26 +91,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 let footerHtml = '';
 
                 // Social
+                // Helper to ensure URL has protocol
+                const ensureProtocol = (url) => {
+                    if (!url) return '';
+                    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+                    return 'https://' + url;
+                };
+
+                // Helper to linkify text (URLs and Emails)
+                const linkify = (text) => {
+                    if (!text) return '';
+
+                    // URLs starting with http://, https://, or ftp://
+                    const urlPattern = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+
+                    // URLs starting with www. (without protocol)
+                    const pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+
+                    // Email addresses
+                    const emailPattern = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
+
+                    return text
+                        .replace(urlPattern, '<a href="$1" target="_blank" class="text-link">$1</a>')
+                        .replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank" class="text-link">$2</a>')
+                        .replace(emailPattern, '<a href="mailto:$1" class="text-link">$1</a>');
+                };
+
+                // Social
                 if (twitterGithub) {
-                    let displayLink = twitterGithub;
-                    if (twitterGithub.startsWith('http')) {
-                        displayLink = `<a href="${twitterGithub}" target="_blank" class="footer-link">Twitter/Github</a>`;
-                    }
+                    const url = ensureProtocol(twitterGithub);
+                    const displayLink = `<a href="${url}" target="_blank" class="footer-link">Twitter/Github</a>`;
                     footerHtml += `<div class="footer-row"><span class="footer-label">Social:</span> ${displayLink}</div>`;
                 }
 
                 // Website
                 if (website) {
-                    let displayLink = website;
-                    if (website.startsWith('http')) {
-                        displayLink = `<a href="${website}" target="_blank" class="footer-link">Website</a>`;
-                    }
+                    const url = ensureProtocol(website);
+                    const displayLink = `<a href="${url}" target="_blank" class="footer-link">Website</a>`;
                     footerHtml += `<div class="footer-row"><span class="footer-label">Website:</span> ${displayLink}</div>`;
                 }
 
                 // Contact
                 if (contact) {
-                    footerHtml += `<div class="footer-row"><span class="footer-label">Contact:</span> ${contact}</div>`;
+                    footerHtml += `<div class="footer-row"><span class="footer-label">Contact:</span> ${linkify(contact)}</div>`;
                 }
 
                 item.innerHTML = `
@@ -125,8 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     
                     <div class="card-body">
-                        ${whoami ? `<div class="whoami">"${whoami}"</div>` : ''}
-                        ${building ? `<div class="building"><u>Currently building:</u> ${building}</div>` : ''}
+                        ${whoami ? `<div class="whoami">"${linkify(whoami)}"</div>` : ''}
+                        ${building ? `<div class="building"><u>Currently building:</u> ${linkify(building)}</div>` : ''}
                         ${aiDescription ? `<div class="ai-description">✨ ${aiDescription}</div>` : ''}
                     </div>
 
