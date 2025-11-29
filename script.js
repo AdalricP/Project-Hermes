@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return 'https://' + url;
                 };
 
-                // Helper to linkify text (URLs and Emails)
+                // Helper to linkify text (URLs only, no emails)
                 const linkify = (text) => {
                     if (!text) return '';
 
@@ -108,26 +108,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     // URLs starting with www. (without protocol)
                     const pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
 
-                    // Email addresses
-                    const emailPattern = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
-
                     return text
                         .replace(urlPattern, '<a href="$1" target="_blank" class="text-link">$1</a>')
-                        .replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank" class="text-link">$2</a>')
-                        .replace(emailPattern, '<a href="mailto:$1" class="text-link">$1</a>');
+                        .replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank" class="text-link">$2</a>');
                 };
 
                 // Social
                 if (twitterGithub) {
                     const url = ensureProtocol(twitterGithub);
-                    const displayLink = `<a href="${url}" target="_blank" class="footer-link">Twitter/Github</a>`;
+                    const displayLink = `<a href="${url}" target="_blank" class="footer-link">${url}</a>`;
                     footerHtml += `<div class="footer-row"><span class="footer-label">Social:</span> ${displayLink}</div>`;
                 }
 
                 // Website
                 if (website) {
                     const url = ensureProtocol(website);
-                    const displayLink = `<a href="${url}" target="_blank" class="footer-link">Website</a>`;
+                    const displayLink = `<a href="${url}" target="_blank" class="footer-link">${url}</a>`;
                     footerHtml += `<div class="footer-row"><span class="footer-label">Website:</span> ${displayLink}</div>`;
                 }
 
