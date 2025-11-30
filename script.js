@@ -20,8 +20,21 @@ document.addEventListener('DOMContentLoaded', () => {
             Papa.parse(csvText, {
                 header: true,
                 complete: (results) => {
-                    dbData = results.data;
-                    console.log('Google Sheet Data loaded:', dbData);
+                    // Map raw CSV headers to internal keys
+                    dbData = results.data.map(row => ({
+                        'Name': row["What's your name?"] || row['Name'],
+                        'Title': row["Give us a short title that'd describe your role"] || row['Title'],
+                        'Twitter/Github': row['Link to github/twitter?'] || row['Twitter/Github'],
+                        'Website': row['Link to website?'] || row['Website'],
+                        'Contact (mail)': row['Would you like to let people see your email?'] === 'Yes' ? row['Email Address'] : (row['Contact (mail)'] || ''),
+                        'What am I building?': row['What are you working on right now?'] || row['What am I building?'],
+                        '/whoami (description)': row['How would you described yourself? (/whoami)'] || row['/whoami (description)']
+                    })).filter(item => item.Name); // Filter out empty rows
+
+                    console.log('Google Sheet Data loaded & mapped:', dbData);
+
+                    // Initialize Fuse.js immediately with the mapped data
+                    fuse = new Fuse(dbData, fuseOptions);
                 },
                 error: (err) => {
                     console.error('Error parsing CSV:', err);
@@ -181,7 +194,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 1. Local Fuzzy Search with Fuse.js
         if (!fuse) {
-            fuse = new Fuse(dbData, fuseOptions);
+            // Fallback if data hasn't loaded yet
+            if (dbData.length > 0) {
+                fuse = new Fuse(dbData, fuseOptions);
+            } else {
+                console.warn("Data not loaded yet");
+                return;
+            }
         }
 
         let results = fuse.search(query);
