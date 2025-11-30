@@ -1,17 +1,10 @@
 # Project Hermes
 
-A curated directory of builders, engineers, and researchers in the Indian tech ecosystem.
+Personal project directory for meeting interesting builders, researchers, etc. building the future. Online on hermes.arypa.in / project-hermes.arypa.in
 
-## Features
-- **Semantic Search:** Powered by Groq (GPT-OSS-120b) to find people based on skills, roles, and bio.
-- **AI Summaries:** Auto-generated "punchy" descriptions for each profile.
-- **Direct Connect:** Links to Twitter, GitHub, and Email.
+Uses semantic search to help you find cool peeps. Built on Vite + React, using Groq API for the LLM.
 
-## Tech Stack
-- **Frontend:** Vanilla JS, Vite
-- **Backend:** Vercel Serverless Functions
-- **AI:** Groq API
-- **Data:** Google Sheets (CSV export)
+<img width="1417" height="761" alt="Screenshot 2025-12-01 at 2 42 33 AM" src="https://github.com/user-attachments/assets/fbe6589f-e68d-4114-b368-a0064ce9aed4" />
 
 ## Setup
 1. Clone the repo.
