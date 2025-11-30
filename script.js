@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import Fuse from 'fuse.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadData();
 
     // Display Results
-    function displayResults(results) {
+    function displayResults(results, isLoadingAI = false) {
         searchResults.innerHTML = '';
 
         if (typeof results === 'string') {
@@ -64,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const contact = person['Contact (mail)'] || '';
                 const building = person['What am I building?'] || '';
                 const whoami = person['/whoami (description)'] || '';
-                const aiDescription = person['AI_Description'] || '';
+                // const aiDescription = person['AI_Description'] || ''; // We load this dynamically now
 
                 // Avatar Logic
                 let avatarUrl = 'assets/default_avatar.png';
@@ -146,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="card-body">
                         ${whoami ? `<div class="whoami">"${linkify(whoami)}"</div>` : ''}
                         ${building ? `<div class="building"><u>Currently building:</u> ${linkify(building)}</div>` : ''}
-                        ${aiDescription ? `<div class="ai-description">✨ ${aiDescription}</div>` : ''}
+                        ${isLoadingAI ? `<div class="ai-description loading">✨ Asking the oracle...</div>` : ''}
                     </div>
 
                     <div class="card-footer">
@@ -158,75 +159,103 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Initialize Fuse.js
+    let fuse;
+    const fuseOptions = {
+        keys: [
+            { name: 'Name', weight: 0.4 },
+            { name: 'Title', weight: 0.2 },
+            { name: 'What am I building?', weight: 0.2 },
+            { name: '/whoami (description)', weight: 0.2 }
+        ],
+        threshold: 0.4, // 0.0 is perfect match, 1.0 is match anything
+        includeScore: true
+    };
+
     // Handle Search
     async function handleSearch() {
         const query = searchInput.value.trim();
         if (!query) return;
 
-
         searchResults.innerHTML = '<div class="result-item" style="text-align:center; color: var(--text-secondary);">Searching the archives...</div>';
 
-        // Client-side RAG: Filter data to send relevant context
-        let relevantData = dbData.filter(item => {
-            const str = JSON.stringify(item).toLowerCase();
-            const q = query.toLowerCase();
-            return str.includes(q) || q.split(' ').some(word => str.includes(word));
-        }).slice(0, 30);
+        // 1. Local Fuzzy Search with Fuse.js
+        if (!fuse) {
+            fuse = new Fuse(dbData, fuseOptions);
+        }
+
+        let results = fuse.search(query);
 
         // Special handling for creator queries
         const lowerQuery = query.toLowerCase();
         if (lowerQuery.includes('who made') || lowerQuery.includes('creator') || lowerQuery.includes('built this')) {
             const creatorEntry = dbData.find(item => item['Name'] && item['Name'].toLowerCase().includes('aryan'));
             if (creatorEntry) {
-                // Add creator to the top of the list if not already there
-                if (!relevantData.includes(creatorEntry)) {
-                    relevantData.unshift(creatorEntry);
+                // Add creator to the top if not already there
+                const exists = results.some(r => r.item['Name'] === creatorEntry['Name']);
+                if (!exists) {
+                    results.unshift({ item: creatorEntry, score: 0 });
                 }
             }
         }
 
-        const contextData = relevantData.length > 0 ? relevantData : dbData.slice(0, 20);
+        if (results.length === 0) {
+            displayResults([]);
+            return;
+        }
 
-        // Call the serverless function
+        // Take top 5 results
+        const topResults = results.slice(0, 5).map(r => r.item);
+
+        // Display them immediately with loading state for AI description
+        displayResults(topResults, true); // true = loading AI descriptions
+
+        // 2. Enrich with AI Descriptions (Parallel)
         try {
             const response = await fetch('/api/search', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     query: query,
-                    contextData: contextData
+                    contextData: topResults // Send only the specific people we found
                 })
             });
 
             const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Unknown error from server');
+            if (data.content) {
+                // Parse the AI response which should be a map of Name -> Description
+                try {
+                    const aiDescriptions = JSON.parse(data.content);
+                    updateAIDescriptions(aiDescriptions);
+                } catch (e) {
+                    console.error("Failed to parse AI descriptions:", e);
+                }
             }
-
-            const content = data.content;
-            try {
-                // Clean up potential markdown code blocks
-                const csvStr = content.replace(/```csv\n?|```/g, '').trim();
-
-                // Parse CSV using PapaParse
-                const parsed = Papa.parse(csvStr, {
-                    header: true,
-                    skipEmptyLines: true
-                });
-
-                displayResults(parsed.data);
-            } catch (e) {
-                console.error("Failed to parse CSV:", content);
-                displayResults("Error: Could not parse response from the oracle.");
-            }
-
         } catch (error) {
-            console.error('Error:', error);
-            displayResults(`Connection error: ${error.message}`);
+            console.error('Error fetching AI descriptions:', error);
+            // Fail silently, user still sees the search results
         }
+    }
+
+    function updateAIDescriptions(descriptions) {
+        const items = searchResults.querySelectorAll('.result-item');
+        items.forEach(item => {
+            const nameEl = item.querySelector('h3');
+            if (nameEl) {
+                const name = nameEl.textContent;
+                if (descriptions[name]) {
+                    const body = item.querySelector('.card-body');
+                    let aiDiv = body.querySelector('.ai-description');
+                    if (!aiDiv) {
+                        aiDiv = document.createElement('div');
+                        aiDiv.className = 'ai-description';
+                        body.appendChild(aiDiv);
+                    }
+                    aiDiv.innerHTML = `✨ ${descriptions[name]}`;
+                    aiDiv.classList.add('fade-in');
+                }
+            }
+        });
     }
 
     // Event Listeners
