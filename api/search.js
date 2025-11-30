@@ -50,6 +50,7 @@ export default async function handler(request, response) {
         - CRITICAL: If the user asks "who made this", "who built this", or about the creator, YOU MUST return the entry for 'Aryan Pahwani' (or similar) from the database.
         - If no one matches, return nothing or just the headers.
         - Match loosely based on skills, roles, bio, and Site Keywords.
+        - LIMIT: Return at most 3 people.
         - If the user asks for "everyone" or "all", return the context.`;
 
         const chatCompletion = await groq.chat.completions.create({
