@@ -45,7 +45,7 @@ export default async function handler(request, response) {
         
         Return a CSV string of people from the provided database that match the query.
         - The CSV MUST have these headers: Name, Title, Twitter/Github, Website, Contact (mail), What am I building?, /whoami (description), AI_Description
-        - For 'AI_Description', generate a short, punchy, 3rd-person summary (max 15 words) of who they are based on their info.
+        - For 'AI_Description', provide a specific insight (max 20 words) explaining exactly what they built or why they match the query. If they match because of a specific project or keyword, mention it explicitly.
         - Return ONLY the CSV string. No other text.
         - CRITICAL: If the user asks "who made this", "who built this", or about the creator, YOU MUST return the entry for 'Aryan Pahwani' (or similar) from the database.
         - If no one matches, return nothing or just the headers.
