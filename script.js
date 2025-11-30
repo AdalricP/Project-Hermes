@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchResults = document.getElementById('search-results');
 
     // Placeholder for Google Sheet CSV Link - User to provide
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1OzR5qE7CyavjVTEdCgflUU2nrE6pwhhxH2eRKimP6ao/export?format=csv";
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1OzR5qE7CyavjVTEdCgflUU2nrE6pwhhxH2eRKimP6ao/export?format=csv&gid=0";
 
     let dbData = [];
     // const apiKey = import.meta.env.VITE_GROQ_API_KEY; // Moved to backend
